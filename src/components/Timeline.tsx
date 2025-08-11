@@ -30,9 +30,15 @@ const borderColors = [
   "#8B4FCC", // Dark Neon Purple
 ];
 
-const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
+const Timeline = ({
+  items: initialItems,
+  timelineStartDate,
+}: TimelineProps): JSX.Element => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const [pixelsPerDay, setPixelsPerDay] = useState(PIXELS_PER_DAY);
+  const [items, setItems] = useState(initialItems);
+  const [editingItem, setEditingItem] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
 
   const calculateWidth = (start: string, end: string): number => {
     const startDate = new Date(start);
@@ -58,6 +64,30 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
       setPixelsPerDay((prev) => Math.max(5, Math.min(100, prev * zoomFactor)));
     }
     // Otherwise, allow normal scrolling
+  };
+
+  const startEditing = (itemId: number, currentName: string) => {
+    setEditingItem(itemId);
+    setEditValue(currentName);
+  };
+
+  const saveEdit = (itemId: number) => {
+    if (editValue.trim()) {
+      setItems((prevItems) =>
+        prevItems.map((lane) =>
+          lane.map((item) =>
+            item.id === itemId ? { ...item, name: editValue.trim() } : item
+          )
+        )
+      );
+    }
+    setEditingItem(null);
+    setEditValue("");
+  };
+
+  const cancelEdit = () => {
+    setEditingItem(null);
+    setEditValue("");
   };
 
   const getItemColor = (itemIndex: number, laneIndex: number): string => {
@@ -161,20 +191,53 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                         target.style.zIndex = "10";
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          color: "#1a1a1a",
-                          textShadow: "1px 1px 2px rgba(255,255,255,0.3)",
-                          lineHeight: "1.2",
-                          marginBottom: "4px",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {item.name}
-                      </div>
+                      {editingItem === item.id ? (
+                        <div style={{ marginBottom: "4px" }}>
+                          <input
+                            type="text"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                saveEdit(item.id);
+                              } else if (e.key === "Escape") {
+                                cancelEdit();
+                              }
+                            }}
+                            onBlur={() => saveEdit(item.id)}
+                            style={{
+                              width: "100%",
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              color: "#1a1a1a",
+                              backgroundColor: "white",
+                              border: "1px solid #666",
+                              borderRadius: "3px",
+                              padding: "2px 4px",
+                              outline: "none",
+                            }}
+                            autoFocus
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            color: "#1a1a1a",
+                            textShadow: "1px 1px 2px rgba(255,255,255,0.3)",
+                            lineHeight: "1.2",
+                            marginBottom: "4px",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => startEditing(item.id, item.name)}
+                          title="Click to edit"
+                        >
+                          {item.name}
+                        </div>
+                      )}
                       <div
                         style={{
                           fontSize: "10px",
