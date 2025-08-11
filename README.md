@@ -1,3 +1,5 @@
+![Timelime Screenshot](./img/image.png)
+
 # Timelime - Interactive Timeline Component
 
 A modern, interactive timeline component built with React and TypeScript that allows users to create, edit, and manage timeline items with drag-and-drop functionality.
