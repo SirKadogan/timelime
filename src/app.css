@@ -4,3 +4,193 @@ body {
   font-family: sans-serif;
   background-color: #222222;
 }
+
+/* Timeline Container */
+.timeline-container {
+  margin: 60px;
+  background-color: #333;
+  position: relative;
+  border-radius: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 20px;
+}
+
+/* Timeline Scroll Container */
+.timeline-scroll {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+/* Timeline List */
+.timeline-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Timeline Lane */
+.timeline-lane {
+  display: flex;
+  flex-direction: row;
+  margin-top: 3px;
+  position: relative;
+}
+
+/* Timeline Item */
+.timeline-item {
+  height: 60px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  position: absolute;
+  overflow: hidden;
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: grab;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.timeline-item:hover {
+  z-index: 100;
+}
+
+.timeline-item.dragging {
+  cursor: grabbing;
+  opacity: 0.7;
+  transform: scale(1.05);
+  z-index: 1000;
+  transition: none;
+}
+
+/* Timeline Item Text */
+.timeline-item-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+  line-height: 1.2;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.timeline-item-dates {
+  font-size: 10px;
+  color: #333;
+  font-family: monospace;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Timeline Item Edit Input */
+.timeline-item-edit-container {
+  margin-bottom: 4px;
+}
+
+.timeline-item-edit-input {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
+  background-color: white;
+  border: 1px solid #666;
+  border-radius: 3px;
+  padding: 2px 4px;
+  outline: none;
+}
+
+/* Between Lanes Indicator */
+.timeline-between-lanes-indicator {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  height: 3px;
+  background-color: #FFD700;
+  border-radius: 2px;
+  z-index: 999;
+  pointer-events: none;
+}
+
+/* Timeline Background Lines */
+.timeline-background-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.timeline-background-line-vertical {
+  position: absolute;
+  height: 1px;
+  background-color: #555;
+  transform: rotate(90deg);
+  transform-origin: left center;
+  transition: all 0.2s ease;
+}
+
+.timeline-background-line-vertical.start {
+  background-color: white;
+}
+
+.timeline-background-line-vertical.dragging {
+  background-color: white;
+}
+
+.timeline-background-line-vertical.dragging-target {
+  background-color: #FFD700;
+}
+
+.timeline-background-line-vertical.dragging-target-border {
+  border-top: 1px solid white;
+}
+
+.timeline-background-line-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: white;
+  white-space: nowrap;
+  text-align: end;
+  padding-top: 2px;
+}
+
+/* Drag Preview */
+.timeline-drag-preview {
+  position: fixed;
+  height: 60px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  z-index: 10000;
+  cursor: grabbing;
+  overflow: hidden;
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: 0.8;
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+.timeline-drag-preview-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+  line-height: 1.2;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.timeline-drag-preview-dates {
+  font-size: 10px;
+  color: #333;
+  font-family: monospace;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+}

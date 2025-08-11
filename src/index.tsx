@@ -5,6 +5,7 @@ import assignLanes from "./assignLanes";
 
 function App(): JSX.Element {
   const lanes = assignLanes(timelineItems);
+  // Some parcel logic to get the image path
   const url = new URL("./img/timelime_logo.png", import.meta.url);
   return (
     <div>
