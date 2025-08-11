@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { TimelineItem } from "../types";
 
 interface TimelineProps {
@@ -32,12 +32,14 @@ const borderColors = [
 
 const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [pixelsPerDay, setPixelsPerDay] = useState(PIXELS_PER_DAY);
+
   const calculateWidth = (start: string, end: string): number => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays * PIXELS_PER_DAY || 15;
+    return diffDays * pixelsPerDay || pixelsPerDay;
   };
 
   const getDiffStartDate = (start: string, dateToCompare: string): number => {
@@ -45,7 +47,17 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
     const timelineStart = new Date(dateToCompare);
     const diffTime = Math.abs(startDate.getTime() - timelineStart.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays * PIXELS_PER_DAY;
+    return diffDays * pixelsPerDay;
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    // Only zoom when Ctrl/Cmd key is pressed
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      setPixelsPerDay((prev) => Math.max(5, Math.min(100, prev * zoomFactor)));
+    }
+    // Otherwise, allow normal scrolling
   };
 
   const getItemColor = (itemIndex: number, laneIndex: number): string => {
@@ -82,6 +94,7 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
             position: "relative",
             marginBottom: "30px",
           }}
+          onWheel={handleWheel}
         >
           <ul
             style={{
@@ -146,12 +159,12 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                       )
                     )
                   ) /
-                    PIXELS_PER_DAY +
+                    pixelsPerDay +
                     10
                 ),
               },
               (_, i) => {
-                const linePosition = i * PIXELS_PER_DAY;
+                const linePosition = i * pixelsPerDay;
                 const matchingItem = items
                   .flatMap((lane) => lane)
                   .find(
