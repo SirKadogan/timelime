@@ -5,21 +5,22 @@ import assignLanes from "./assignLanes";
 
 function App(): JSX.Element {
   const lanes = assignLanes(timelineItems);
+  const url = new URL("./img/timelime_logo.png", import.meta.url);
   return (
     <div>
-      <h2>Good luck with your assignment! {"\u2728"}</h2>
+      <img
+        src={url.toString()}
+        alt="Time Lime Logo"
+        style={{
+          height: "150px",
+          width: "auto",
+          display: "block",
+          margin: "0 auto 20px auto",
+          marginTop: "30px",
+        }}
+      />
+
       <Timeline items={lanes} timelineStartDate={timelineItems[0].start} />
-      <div>
-        {lanes.map((lane) => (
-          <li key={lane[0].id}>
-            {lane.map((item) => (
-              <div key={item.id}>
-                {item.name} {item.start} {item.end}
-              </div>
-            ))}
-          </li>
-        ))}
-      </div>
     </div>
   );
 }
