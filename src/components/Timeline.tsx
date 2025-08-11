@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { TimelineItem } from "../types";
 
 interface TimelineProps {
@@ -31,6 +31,7 @@ const borderColors = [
 ];
 
 const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
+  const timelineRef = useRef<HTMLDivElement>(null);
   const calculateWidth = (start: string, end: string): number => {
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -74,6 +75,7 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
           width: "100%",
           padding: "20px",
         }}
+        ref={timelineRef}
       >
         <div
           style={{
@@ -95,31 +97,12 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                   display: "flex",
                   flexDirection: "row",
                   marginTop: "3px",
-                  overflow: "scroll",
+                  position: "relative",
+                  height: ROW_HEIGHT,
                 }}
               >
-                <div
-                  style={{
-                    width: getDiffStartDate(lane[0].start, timelineStartDate),
-                    height: "60px",
-                  }}
-                />
                 {lane.map((item, itemIndex) => (
                   <React.Fragment key={item.id}>
-                    {itemIndex > 0 &&
-                      getDiffStartDate(item.start, lane[itemIndex - 1].end) >
-                        0 && (
-                        <div
-                          style={{
-                            width: getDiffStartDate(
-                              lane[itemIndex - 1].end,
-                              item.start
-                            ),
-
-                            backgroundColor: "transparent",
-                          }}
-                        />
-                      )}
                     <div
                       style={{
                         width: calculateWidth(item.start, item.end),
@@ -127,6 +110,9 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                         height: ROW_HEIGHT,
                         borderRadius: "5px",
                         boxSizing: "border-box",
+                        position: "absolute",
+
+                        left: getDiffStartDate(item.start, timelineStartDate),
                         border: `2px solid ${getItemBorderColor(
                           itemIndex,
                           index
@@ -141,9 +127,29 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
               </li>
             ))}
           </ul>
-          <div style={{ position: "absolute", top: 0, left: 0 }}>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+            }}
+          >
             {Array.from(
-              { length: Math.ceil(screenWidth / PIXELS_PER_DAY) },
+              {
+                length: Math.ceil(
+                  Math.max(
+                    ...items.flatMap((lane) =>
+                      lane.map(
+                        (item) =>
+                          getDiffStartDate(item.start, timelineStartDate) +
+                          calculateWidth(item.start, item.end)
+                      )
+                    )
+                  ) /
+                    PIXELS_PER_DAY +
+                    10
+                ),
+              },
               (_, i) => {
                 const linePosition = i * PIXELS_PER_DAY;
                 const matchingItem = items
@@ -159,6 +165,7 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
 
                 return (
                   <div
+                    key={linePosition}
                     style={{
                       position: "absolute",
                       left: linePosition,
