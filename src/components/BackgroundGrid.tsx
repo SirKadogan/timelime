@@ -6,7 +6,11 @@ interface BackgroundGridProps {
   timelineStartDate: string;
   pixelsPerDay: number;
   calculateWidth: (start: string, end: string) => number;
-  getDiffStartDate: (start: string, dateToCompare: string) => number;
+  getDiffStartDate: (
+    start: string,
+    dateToCompare: string,
+    pixelsPerDay: number
+  ) => number;
   calculateBackgroundHeight: () => number;
   draggedItem: {
     item: TimelineItem;
@@ -29,7 +33,7 @@ const BackgroundGrid: React.FC<BackgroundGridProps> = ({
       ...items.flatMap((lane) =>
         lane.map(
           (item) =>
-            getDiffStartDate(item.start, timelineStartDate) +
+            getDiffStartDate(item.start, timelineStartDate, pixelsPerDay) +
             calculateWidth(item.start, item.end)
         )
       )
@@ -53,7 +57,8 @@ const BackgroundGrid: React.FC<BackgroundGridProps> = ({
           .find(
             (item) =>
               Math.abs(
-                getDiffStartDate(item.start, timelineStartDate) - linePosition
+                getDiffStartDate(item.start, timelineStartDate, pixelsPerDay) -
+                  linePosition
               ) < 2
           );
         const isItemStart = !!matchingItem;
@@ -66,7 +71,11 @@ const BackgroundGrid: React.FC<BackgroundGridProps> = ({
             } ${
               draggedItem &&
               linePosition ===
-                getDiffStartDate(draggedItem.item.start, timelineStartDate)
+                getDiffStartDate(
+                  draggedItem.item.start,
+                  timelineStartDate,
+                  pixelsPerDay
+                )
                 ? "dragging-target"
                 : ""
             }`}
@@ -77,7 +86,8 @@ const BackgroundGrid: React.FC<BackgroundGridProps> = ({
                   // Highlight lines when dragging - show where the item will land
                   const draggedItemStart = getDiffStartDate(
                     draggedItem.item.start,
-                    timelineStartDate
+                    timelineStartDate,
+                    pixelsPerDay
                   );
                   const isAtStartDate = linePosition === draggedItemStart;
 
@@ -91,7 +101,8 @@ const BackgroundGrid: React.FC<BackgroundGridProps> = ({
                 if (draggedItem) {
                   const draggedItemStart = getDiffStartDate(
                     draggedItem.item.start,
-                    timelineStartDate
+                    timelineStartDate,
+                    pixelsPerDay
                   );
                   const isAtStartDate = linePosition === draggedItemStart;
 

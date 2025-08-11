@@ -30,6 +30,14 @@ export const useEdit = ({ onSave }: UseEditProps = {}) => {
     setEditValue(value);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, itemId: number) => {
+    if (e.key === "Enter") {
+      saveEdit(itemId);
+    } else if (e.key === "Escape") {
+      cancelEdit();
+    }
+  };
+
   const isEditing = (itemId: number) => editingItem === itemId;
 
   return {
@@ -39,6 +47,7 @@ export const useEdit = ({ onSave }: UseEditProps = {}) => {
     saveEdit,
     cancelEdit,
     updateEditValue,
+    handleKeyDown,
     isEditing,
   };
 };

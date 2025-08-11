@@ -1,9 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { TimelineItem } from "../types";
 import { useDragAndDrop } from "../hooks/useDragAndDrop";
 import { useZoom } from "../hooks/useZoom";
 import { useEdit } from "../hooks/useEdit";
-import { PIXELS_PER_DAY, ROW_HEIGHT, colors, borderColors } from "../constants";
+import { useTimelineItem } from "../hooks/useTimelineItem";
+import { useTimelineUtils } from "../hooks/useTimelineUtils";
+import { PIXELS_PER_DAY, ROW_HEIGHT } from "../constants";
 import DragPreview from "./DragPreview";
 import BackgroundGrid from "./BackgroundGrid";
 
@@ -31,6 +33,7 @@ const Timeline = ({
     saveEdit,
     cancelEdit,
     updateEditValue,
+    handleKeyDown,
   } = useEdit({
     onSave: (itemId: number, newName: string) => {
       setItems((prevItems) =>
@@ -59,33 +62,25 @@ const Timeline = ({
     onItemsChange: setItems,
   });
 
-  const calculateWidth = (start: string, end: string): number => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays * pixelsPerDay || pixelsPerDay;
-  };
+  // Use the custom timeline item hook
+  const {
+    calculateWidth,
+    handleMouseMove: handleItemMouseMove,
+    handleMouseEnter,
+    handleMouseLeave,
+  } = useTimelineItem({
+    pixelsPerDay,
+  });
 
-  const getDiffStartDate = (start: string, dateToCompare: string): number => {
-    const startDate = new Date(start);
-    const timelineStart = new Date(dateToCompare);
-    const diffTime = Math.abs(startDate.getTime() - timelineStart.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays * pixelsPerDay;
-  };
-
-  const getItemColor = (itemIndex: number, laneIndex: number): string => {
-    return colors[(itemIndex + laneIndex * 2) % colors.length];
-  };
-
-  const getItemBorderColor = (itemIndex: number, laneIndex: number): string => {
-    return borderColors[(itemIndex + laneIndex * 2) % borderColors.length];
-  };
-
-  const calculateBackgroundHeight = (): number => {
-    return (items.length + 1) * ROW_HEIGHT + (items.length - 1) * 3;
-  };
+  // Use the custom timeline utils hook
+  const {
+    getDiffStartDate,
+    getItemColor,
+    getItemBorderColor,
+    calculateBackgroundHeight,
+  } = useTimelineUtils({
+    items,
+  });
 
   return (
     <>
@@ -123,7 +118,11 @@ const Timeline = ({
                         width: calculateWidth(item.start, item.end),
                         backgroundColor: getItemColor(itemIndex, index),
                         height: ROW_HEIGHT,
-                        left: getDiffStartDate(item.start, timelineStartDate),
+                        left: getDiffStartDate(
+                          item.start,
+                          timelineStartDate,
+                          pixelsPerDay
+                        ),
                         border: `2px solid ${getItemBorderColor(
                           itemIndex,
                           index
@@ -132,44 +131,15 @@ const Timeline = ({
                       onMouseDown={(e) =>
                         handleMouseDown(e, item, index, itemIndex, editingItem)
                       }
-                      onMouseMove={(e) => {
-                        if (draggedItem?.item.id === item.id) return;
-                        const target = e.currentTarget;
-                        const rect = target.getBoundingClientRect();
-                        const mouseX = e.clientX - rect.left;
-                        const itemWidth = calculateWidth(item.start, item.end);
-
-                        // Change cursor to resize when near right edge
-                        if (mouseX > itemWidth - 10) {
-                          target.style.cursor = "ew-resize";
-                        } else {
-                          target.style.cursor = "grab";
-                        }
-                      }}
-                      onMouseEnter={(e) => {
-                        if (draggedItem?.item.id === item.id) return;
-                        const target = e.currentTarget;
-                        const itemWidth = calculateWidth(item.start, item.end);
-                        const textWidth = item.name.length * 8; // Approximate character width
-                        const totalTextWidth = textWidth + 40; // 40px for padding and buffer
-
-                        if (totalTextWidth > itemWidth) {
-                          target.style.width = `${Math.max(
-                            itemWidth,
-                            totalTextWidth
-                          )}px`;
-                          target.style.zIndex = "100";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (draggedItem?.item.id === item.id) return;
-                        const target = e.currentTarget;
-                        target.style.width = `${calculateWidth(
-                          item.start,
-                          item.end
-                        )}px`;
-                        target.style.zIndex = "10";
-                      }}
+                      onMouseMove={(e) =>
+                        handleItemMouseMove(e, item, draggedItem?.item.id)
+                      }
+                      onMouseEnter={(e) =>
+                        handleMouseEnter(e, item, draggedItem?.item.id)
+                      }
+                      onMouseLeave={(e) =>
+                        handleMouseLeave(e, item, draggedItem?.item.id)
+                      }
                     >
                       {editingItem === item.id ? (
                         <div className="timeline-item-edit-container">
@@ -178,13 +148,7 @@ const Timeline = ({
                             className="timeline-item-edit-input"
                             value={editValue}
                             onChange={(e) => updateEditValue(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                saveEdit(item.id);
-                              } else if (e.key === "Escape") {
-                                cancelEdit();
-                              }
-                            }}
+                            onKeyDown={(e) => handleKeyDown(e, item.id)}
                             onBlur={() => saveEdit(item.id)}
                             autoFocus
                           />
@@ -226,6 +190,7 @@ const Timeline = ({
           draggedItem={draggedItem}
           timelineRef={timelineRef}
           timelineStartDate={timelineStartDate}
+          pixelsPerDay={pixelsPerDay}
           calculateWidth={calculateWidth}
           getItemColor={getItemColor}
           getItemBorderColor={getItemBorderColor}

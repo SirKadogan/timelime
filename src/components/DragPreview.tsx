@@ -9,10 +9,15 @@ interface DragPreviewProps {
   };
   timelineRef: React.RefObject<HTMLDivElement>;
   timelineStartDate: string;
+  pixelsPerDay: number;
   calculateWidth: (start: string, end: string) => number;
   getItemColor: (itemIndex: number, laneIndex: number) => string;
   getItemBorderColor: (itemIndex: number, laneIndex: number) => string;
-  getDiffStartDate: (start: string, dateToCompare: string) => number;
+  getDiffStartDate: (
+    start: string,
+    dateToCompare: string,
+    pixelsPerDay: number
+  ) => number;
   ROW_HEIGHT: number;
 }
 
@@ -20,6 +25,7 @@ const DragPreview: React.FC<DragPreviewProps> = ({
   draggedItem,
   timelineRef,
   timelineStartDate,
+  pixelsPerDay,
   calculateWidth,
   getItemColor,
   getItemBorderColor,
@@ -31,7 +37,7 @@ const DragPreview: React.FC<DragPreviewProps> = ({
 
   const left =
     rect.left +
-    getDiffStartDate(draggedItem.item.start, timelineStartDate) +
+    getDiffStartDate(draggedItem.item.start, timelineStartDate, pixelsPerDay) +
     20;
   const top = rect.top + draggedItem.laneIndex * (ROW_HEIGHT + 3) + 20;
 
