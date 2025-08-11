@@ -116,7 +116,7 @@ const Timeline = ({
   };
 
   const calculateBackgroundHeight = (): number => {
-    return items.length * ROW_HEIGHT + (items.length - 1) * 3;
+    return (items.length + 1) * ROW_HEIGHT + (items.length - 1) * 3;
   };
 
   // Check if two date ranges overlap
@@ -302,7 +302,11 @@ const Timeline = ({
     };
 
     // Check if the item would overlap in the target lane
-    if (wouldOverlapInLane(previewItem, newLaneIndex, draggedItem.item.id)) {
+    // Only check for overlaps if NOT hovering between lanes
+    if (
+      !isBetweenLanes &&
+      wouldOverlapInLane(previewItem, newLaneIndex, draggedItem.item.id)
+    ) {
       // If overlapping, try to find a non-overlapping lane or create a new one
       let foundLane = false;
 
