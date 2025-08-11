@@ -1,3 +1,4 @@
+import React from "react";
 import { TimelineItem } from "../types";
 
 interface TimelineProps {
@@ -71,6 +72,7 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
           borderRadius: "10px",
           overflow: "scroll",
           width: "100%",
+          padding: "20px",
         }}
       >
         <div
@@ -103,20 +105,21 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                   }}
                 />
                 {lane.map((item, itemIndex) => (
-                  <div key={item.id}>
-                    {/* {getDiffStartDate(item.start, lane[itemIndex - 1]?.end) >
-                      0 && (
-                      <div
-                        style={{
-                          width: getDiffStartDate(
-                            lane[itemIndex - 1]?.end,
-                            item.start
-                          ),
-                          height: "60px",
-                          backgroundColor: "blue",
-                        }}
-                      />
-                    )} */}
+                  <React.Fragment key={item.id}>
+                    {itemIndex > 0 &&
+                      getDiffStartDate(item.start, lane[itemIndex - 1].end) >
+                        0 && (
+                        <div
+                          style={{
+                            width: getDiffStartDate(
+                              lane[itemIndex - 1].end,
+                              item.start
+                            ),
+
+                            backgroundColor: "transparent",
+                          }}
+                        />
+                      )}
                     <div
                       style={{
                         width: calculateWidth(item.start, item.end),
@@ -133,12 +136,12 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                     >
                       {item.name}
                     </div>
-                  </div>
+                  </React.Fragment>
                 ))}
               </li>
             ))}
           </ul>
-          {/* <div style={{ position: "absolute", top: 0, left: 0 }}>
+          <div style={{ position: "absolute", top: 0, left: 0 }}>
             {Array.from(
               { length: Math.ceil(screenWidth / PIXELS_PER_DAY) },
               (_, i) => {
@@ -187,7 +190,7 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                 );
               }
             )}
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
