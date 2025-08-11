@@ -1,4 +1,4 @@
-![Timelime Screenshot](./img/image.png)
+![Timelime Screenshot](./src/img/image.png)
 
 # Timelime - Interactive Timeline Component
 
