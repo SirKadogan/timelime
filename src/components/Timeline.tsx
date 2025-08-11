@@ -124,13 +124,34 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                         borderRadius: "5px",
                         boxSizing: "border-box",
                         position: "absolute",
-
                         left: getDiffStartDate(item.start, timelineStartDate),
                         border: `2px solid ${getItemBorderColor(
                           itemIndex,
                           index
                         )}`,
                         zIndex: 10,
+                        transition: "all 0.3s ease",
+                        cursor: "pointer",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={(e) => {
+                        const target = e.currentTarget;
+                        if (target.scrollWidth > target.clientWidth) {
+                          target.style.width = `${Math.max(
+                            calculateWidth(item.start, item.end),
+                            target.scrollWidth + 20
+                          )}px`;
+                          target.style.zIndex = "100";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        const target = e.currentTarget;
+                        target.style.width = `${calculateWidth(
+                          item.start,
+                          item.end
+                        )}px`;
+                        target.style.zIndex = "10";
                       }}
                     >
                       {item.name}
