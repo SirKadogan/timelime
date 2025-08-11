@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { TimelineItem } from "../types";
 import { useDragAndDrop } from "../hooks/useDragAndDrop";
+import { useZoom } from "../hooks/useZoom";
 import { PIXELS_PER_DAY, ROW_HEIGHT, colors, borderColors } from "../constants";
 
 interface TimelineProps {
@@ -12,10 +13,14 @@ const Timeline = ({
   items: initialItems,
   timelineStartDate,
 }: TimelineProps): JSX.Element => {
-  const [pixelsPerDay, setPixelsPerDay] = useState(PIXELS_PER_DAY);
   const [items, setItems] = useState(initialItems);
   const [editingItem, setEditingItem] = useState<number | null>(null);
   const [editValue, setEditValue] = useState<string>("");
+
+  // Use the custom zoom hook
+  const { pixelsPerDay, handleWheel } = useZoom({
+    initialPixelsPerDay: PIXELS_PER_DAY,
+  });
 
   // Use the custom drag and drop hook
   const {
@@ -47,16 +52,6 @@ const Timeline = ({
     const diffTime = Math.abs(startDate.getTime() - timelineStart.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays * pixelsPerDay;
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    // Only zoom when Ctrl/Cmd key is pressed
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-      setPixelsPerDay((prev) => Math.max(5, Math.min(100, prev * zoomFactor)));
-    }
-    // Otherwise, allow normal scrolling
   };
 
   const startEditing = (itemId: number, currentName: string) => {
