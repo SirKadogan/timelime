@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { TimelineItem } from "../types";
 import { useDragAndDrop } from "../hooks/useDragAndDrop";
 import { useZoom } from "../hooks/useZoom";
+import { useEdit } from "../hooks/useEdit";
 import { PIXELS_PER_DAY, ROW_HEIGHT, colors, borderColors } from "../constants";
 
 interface TimelineProps {
@@ -14,12 +15,30 @@ const Timeline = ({
   timelineStartDate,
 }: TimelineProps): JSX.Element => {
   const [items, setItems] = useState(initialItems);
-  const [editingItem, setEditingItem] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState<string>("");
 
   // Use the custom zoom hook
   const { pixelsPerDay, handleWheel } = useZoom({
     initialPixelsPerDay: PIXELS_PER_DAY,
+  });
+
+  // Use the custom edit hook
+  const {
+    editingItem,
+    editValue,
+    startEditing,
+    saveEdit,
+    cancelEdit,
+    updateEditValue,
+  } = useEdit({
+    onSave: (itemId: number, newName: string) => {
+      setItems((prevItems) =>
+        prevItems.map((lane) =>
+          lane.map((item) =>
+            item.id === itemId ? { ...item, name: newName } : item
+          )
+        )
+      );
+    },
   });
 
   // Use the custom drag and drop hook
@@ -52,30 +71,6 @@ const Timeline = ({
     const diffTime = Math.abs(startDate.getTime() - timelineStart.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays * pixelsPerDay;
-  };
-
-  const startEditing = (itemId: number, currentName: string) => {
-    setEditingItem(itemId);
-    setEditValue(currentName);
-  };
-
-  const saveEdit = (itemId: number) => {
-    if (editValue.trim()) {
-      setItems((prevItems) =>
-        prevItems.map((lane) =>
-          lane.map((item) =>
-            item.id === itemId ? { ...item, name: editValue.trim() } : item
-          )
-        )
-      );
-    }
-    setEditingItem(null);
-    setEditValue("");
-  };
-
-  const cancelEdit = () => {
-    setEditingItem(null);
-    setEditValue("");
   };
 
   const getItemColor = (itemIndex: number, laneIndex: number): string => {
@@ -230,7 +225,7 @@ const Timeline = ({
                           <input
                             type="text"
                             value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
+                            onChange={(e) => updateEditValue(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
                                 saveEdit(item.id);
