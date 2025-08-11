@@ -23,7 +23,7 @@ const borderColors = [
   "#2ABF0E", // Dark Neon Green
   "#CC0530", // Dark Neon Red
   "#B8B800", // Dark Neon Yellow
-  "#00CCCC", // Dark Neon Cyan
+  "#00CCCC", // Neon Cyan
   "#CC4EC5", // Dark Neon Pink
   "#CC7A00", // Dark Neon Orange
   "#08CCB7", // Dark Neon Aqua
@@ -133,14 +133,21 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                         transition: "all 0.3s ease",
                         cursor: "pointer",
                         overflow: "hidden",
-                        whiteSpace: "nowrap",
+                        padding: "4px 2px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
                       }}
                       onMouseEnter={(e) => {
                         const target = e.currentTarget;
-                        if (target.scrollWidth > target.clientWidth) {
+                        const itemWidth = calculateWidth(item.start, item.end);
+                        const textWidth = item.name.length * 8; // Approximate character width
+                        const totalTextWidth = textWidth + 40; // 40px for padding and buffer
+
+                        if (totalTextWidth > itemWidth) {
                           target.style.width = `${Math.max(
-                            calculateWidth(item.start, item.end),
-                            target.scrollWidth + 20
+                            itemWidth,
+                            totalTextWidth
                           )}px`;
                           target.style.zIndex = "100";
                         }
@@ -154,7 +161,33 @@ const Timeline = ({ items, timelineStartDate }: TimelineProps): JSX.Element => {
                         target.style.zIndex = "10";
                       }}
                     >
-                      {item.name}
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          color: "#1a1a1a",
+                          textShadow: "1px 1px 2px rgba(255,255,255,0.3)",
+                          lineHeight: "1.2",
+                          marginBottom: "4px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {item.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "10px",
+                          color: "#333",
+                          fontFamily: "monospace",
+                          fontWeight: "500",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {new Date(item.start).toLocaleDateString()} -{" "}
+                        {new Date(item.end).toLocaleDateString()}
+                      </div>
                     </div>
                   </React.Fragment>
                 ))}
