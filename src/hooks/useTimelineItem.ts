@@ -5,9 +5,15 @@ interface UseTimelineItemProps {
 }
 
 export const useTimelineItem = ({ pixelsPerDay }: UseTimelineItemProps) => {
+  // Parse date string as local date to avoid timezone issues
+  const parseLocalDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+  };
+
   const calculateWidth = (start: string, end: string): number => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const startDate = parseLocalDate(start);
+    const endDate = parseLocalDate(end);
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays * pixelsPerDay || pixelsPerDay;

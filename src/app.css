@@ -5,6 +5,15 @@ body {
   background-color: #222222;
 }
 
+/* Logo */
+.timeline-logo {
+  height: 150px;
+  width: auto;
+  display: block;
+  margin: 0 auto 20px auto;
+  margin-top: 30px;
+}
+
 /* Timeline Container */
 .timeline-container {
   margin: 60px;

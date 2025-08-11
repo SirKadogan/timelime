@@ -6,13 +6,25 @@ interface UseTimelineUtilsProps {
 }
 
 export const useTimelineUtils = ({ items }: UseTimelineUtilsProps) => {
+  // Parse date string as local date to avoid timezone issues
+  const parseLocalDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+  };
+
+  // Format date for display without timezone issues
+  const formatDateForDisplay = (dateString: string): string => {
+    const date = parseLocalDate(dateString);
+    return date.toLocaleDateString();
+  };
+
   const getDiffStartDate = (
     start: string,
     dateToCompare: string,
     pixelsPerDay: number
   ): number => {
-    const startDate = new Date(start);
-    const timelineStart = new Date(dateToCompare);
+    const startDate = parseLocalDate(start);
+    const timelineStart = parseLocalDate(dateToCompare);
     const diffTime = Math.abs(startDate.getTime() - timelineStart.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays * pixelsPerDay;
@@ -31,6 +43,8 @@ export const useTimelineUtils = ({ items }: UseTimelineUtilsProps) => {
   };
 
   return {
+    parseLocalDate,
+    formatDateForDisplay,
     getDiffStartDate,
     getItemColor,
     getItemBorderColor,

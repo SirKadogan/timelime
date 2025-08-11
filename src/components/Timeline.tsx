@@ -74,6 +74,8 @@ const Timeline = ({
 
   // Use the custom timeline utils hook
   const {
+    parseLocalDate,
+    formatDateForDisplay,
     getDiffStartDate,
     getItemColor,
     getItemBorderColor,
@@ -163,8 +165,8 @@ const Timeline = ({
                         </div>
                       )}
                       <div className="timeline-item-dates">
-                        {new Date(item.start).toLocaleDateString()} -{" "}
-                        {new Date(item.end).toLocaleDateString()}
+                        {formatDateForDisplay(item.start)} -{" "}
+                        {formatDateForDisplay(item.end)}
                       </div>
                     </div>
                   </React.Fragment>
@@ -178,6 +180,7 @@ const Timeline = ({
             pixelsPerDay={pixelsPerDay}
             calculateWidth={calculateWidth}
             getDiffStartDate={getDiffStartDate}
+            formatDateForDisplay={formatDateForDisplay}
             calculateBackgroundHeight={calculateBackgroundHeight}
             draggedItem={draggedItem}
           />
@@ -195,6 +198,7 @@ const Timeline = ({
           getItemColor={getItemColor}
           getItemBorderColor={getItemBorderColor}
           getDiffStartDate={getDiffStartDate}
+          formatDateForDisplay={formatDateForDisplay}
           ROW_HEIGHT={ROW_HEIGHT}
         />
       )}

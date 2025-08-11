@@ -37,6 +37,12 @@ export const useDragAndDrop = ({
   const [resizeStartX, setResizeStartX] = useState(0);
   const timelineRef = useRef<HTMLDivElement>(null);
 
+  // Parse date string as local date to avoid timezone issues
+  const parseLocalDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+  };
+
   // Check if two date ranges overlap
   const doDatesOverlap = (
     start1: string,
@@ -44,10 +50,10 @@ export const useDragAndDrop = ({
     start2: string,
     end2: string
   ): boolean => {
-    const start1Date = new Date(start1);
-    const end1Date = new Date(end1);
-    const start2Date = new Date(start2);
-    const end2Date = new Date(end2);
+    const start1Date = parseLocalDate(start1);
+    const end1Date = parseLocalDate(end1);
+    const start2Date = parseLocalDate(start2);
+    const end2Date = parseLocalDate(end2);
 
     return start1Date < end2Date && start2Date < end1Date;
   };
@@ -121,8 +127,8 @@ export const useDragAndDrop = ({
   };
 
   const calculateWidth = (start: string, end: string): number => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const startDate = parseLocalDate(start);
+    const endDate = parseLocalDate(end);
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays * pixelsPerDay || pixelsPerDay;
@@ -136,13 +142,13 @@ export const useDragAndDrop = ({
       const deltaX = e.clientX - resizeStartX;
       const deltaDays = Math.round(deltaX / pixelsPerDay);
 
-      const originalEndDate = new Date(draggedItem.originalEnd);
+      const originalEndDate = parseLocalDate(draggedItem.originalEnd);
       const newEndDate = new Date(
         originalEndDate.getTime() + deltaDays * 24 * 60 * 60 * 1000
       );
 
       // Ensure minimum duration of 1 day
-      if (newEndDate > new Date(draggedItem.originalStart)) {
+      if (newEndDate > parseLocalDate(draggedItem.originalStart)) {
         const resizedItem = {
           ...draggedItem.item,
           end: newEndDate.toISOString().split("T")[0],
@@ -196,7 +202,7 @@ export const useDragAndDrop = ({
 
     // Calculate new start date based on x position
     const newStartDays = Math.round(x / pixelsPerDay);
-    const newStartDate = new Date(timelineStartDate);
+    const newStartDate = parseLocalDate(timelineStartDate);
     newStartDate.setDate(newStartDate.getDate() + newStartDays);
 
     // Calculate new lane based on y position
@@ -217,8 +223,8 @@ export const useDragAndDrop = ({
 
     // Only update the dragged item reference for preview, don't modify the actual items yet
     const originalDuration =
-      new Date(draggedItem.originalEnd).getTime() -
-      new Date(draggedItem.originalStart).getTime();
+      parseLocalDate(draggedItem.originalEnd).getTime() -
+      parseLocalDate(draggedItem.originalStart).getTime();
     const newEndDate = new Date(newStartDate.getTime() + originalDuration);
 
     // Create a preview item to check for overlaps

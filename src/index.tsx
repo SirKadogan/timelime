@@ -12,13 +12,7 @@ function App(): JSX.Element {
       <img
         src={url.toString()}
         alt="Time Lime Logo"
-        style={{
-          height: "150px",
-          width: "auto",
-          display: "block",
-          margin: "0 auto 20px auto",
-          marginTop: "30px",
-        }}
+        className="timeline-logo"
       />
 
       <Timeline items={lanes} timelineStartDate={timelineItems[0].start} />

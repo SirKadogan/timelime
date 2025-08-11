@@ -18,6 +18,7 @@ interface DragPreviewProps {
     dateToCompare: string,
     pixelsPerDay: number
   ) => number;
+  formatDateForDisplay: (dateString: string) => string;
   ROW_HEIGHT: number;
 }
 
@@ -30,6 +31,7 @@ const DragPreview: React.FC<DragPreviewProps> = ({
   getItemColor,
   getItemBorderColor,
   getDiffStartDate,
+  formatDateForDisplay,
   ROW_HEIGHT,
 }) => {
   const rect = timelineRef.current?.getBoundingClientRect();
@@ -60,8 +62,8 @@ const DragPreview: React.FC<DragPreviewProps> = ({
     >
       <div className="timeline-drag-preview-name">{draggedItem.item.name}</div>
       <div className="timeline-drag-preview-dates">
-        {new Date(draggedItem.item.start).toLocaleDateString()} -{" "}
-        {new Date(draggedItem.item.end).toLocaleDateString()}
+        {formatDateForDisplay(draggedItem.item.start)} -{" "}
+        {formatDateForDisplay(draggedItem.item.end)}
       </div>
     </div>
   );
